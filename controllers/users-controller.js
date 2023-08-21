@@ -38,7 +38,7 @@ export const addRemoveFriend = async (req, res) => {
     const { id, friendId } = req.params;
     const user = await User.findById(id);
     const friend = await User.findById(friendId);
- 
+
     if (user.friends.includes(friendId)) {
       user.friends = user.friends.filter((id) => id !== friendId);
       friend.friends = friend.friends.filter((fid) => fid !== id);
@@ -54,8 +54,8 @@ export const addRemoveFriend = async (req, res) => {
 
     //just formatting the friends arr based on front-end need
     const formattedFriends = friends.map(
-      ({ _id, firstname, lastname, occupation, location, picturepath }) => {
-        return { _id, firstname, lastname, occupation, location, picturepath };
+      ({ _id, firstName, lastName, occupation, location, picturePath }) => {
+        return { _id, firstName, lastName, occupation, location, picturePath };
       }
     );
     res.status(200).json(formattedFriends);
@@ -63,4 +63,29 @@ export const addRemoveFriend = async (req, res) => {
     res.status(404).json({ msg: err.message });
   }
 };
+
+export const updateUser = async (req, res) => {
+  try {
+    const { id, firstName, lastName, occupation, location } = req.params;
+    const {images} = req.body
+    console.log(req.body)
+    const user = await User.findByIdAndUpdate(id, { firstName: firstName, lastName: lastName, location: location, occupation: occupation  }, { new: true })
+    res.status(200).json(user)
+
+  } catch (err) {
+    res.status(404).json({ msg: err.message });
+  }
+}
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params
+    const user = await User.findById(id);
+    await Post.deleteMany({ userId: user._id })
+    await User.findByIdAndDelete(id)
+    res.send("user deleted successfully")
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+}
 
